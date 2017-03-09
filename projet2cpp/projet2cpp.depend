@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1489065798 source:c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\main.cpp
+	"windows.h"
+	<iostream>
+	<cmath>
+

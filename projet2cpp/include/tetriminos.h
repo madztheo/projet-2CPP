@@ -30,4 +30,51 @@ public:
     ~TetriminosI(){};
 };
 
+class TetriminosJ : public Tetriminos
+{
+public:
+    TetriminosJ();
+    void rotateIt();
+    ~TetriminosJ(){};
+};
+
+class TetriminosL : public Tetriminos
+{
+public:
+    TetriminosL();
+    void rotateIt();
+    ~TetriminosL(){};
+};
+
+class TetriminosO : public Tetriminos
+{
+public:
+    TetriminosO();
+    void rotateIt();
+    ~TetriminosO(){};
+};
+
+class TetriminosT : public Tetriminos
+{
+public:
+    TetriminosT();
+    void rotateIt();
+    ~TetriminosT(){};
+};
+
+class TetriminosS : public Tetriminos
+{
+public:
+    TetriminosS();
+    void rotateIt();
+    ~TetriminosS(){};
+};
+
+class TetriminosZ : public Tetriminos
+{
+public:
+    TetriminosZ();
+    void rotateIt();
+    ~TetriminosZ(){};
+};
 #endif // DEF_TETRIMINOS_H

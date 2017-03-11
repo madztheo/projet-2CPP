@@ -15,7 +15,7 @@ int main(){
     Game *game = new Game();
     game->startGame();
 
-    /*TetriminosI *tet = new TetriminosI();
+    /*TetriminosZ *tet = new TetriminosZ();
     tet->show();
     tet->rotateIt();
     cout << endl;

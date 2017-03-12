@@ -10,8 +10,6 @@
 
 using namespace std;
 
-int gameBoard[20][10];
-
 
 int main(){
     Game *game = new Game();

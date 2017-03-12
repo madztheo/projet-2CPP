@@ -6,29 +6,17 @@
 #include <thread>
 #include "game.h"
 #include "tetriminos.h"
+#include <mutex>
 
 using namespace std;
 
 int gameBoard[20][10];
 
+
 int main(){
     Game *game = new Game();
     game->startGame();
 
-    /*TetriminosZ *tet = new TetriminosZ();
-    tet->show();
-    tet->rotateIt();
-    cout << endl;
-    tet->show();
-    tet->rotateIt();
-    cout << endl;
-    tet->show();
-    tet->rotateIt();
-    cout << endl;
-    tet->show();
-    tet->rotateIt();
-    cout << endl;
-    tet->show();*/
     return 0;
 }
 

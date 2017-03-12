@@ -13,11 +13,19 @@ protected:
         {0,0,0,0,0}
     };
     int rotation = 0;
+    int offsetX = 0;
+    int offsetY = 0;
+
     void emptyArray();
 public:
     Tetriminos() {};
     void virtual rotateIt();
     void show();
+    int getOffsetX() { return offsetX; }
+    int getOffsetY() { return offsetY; }
+    void setOffsetX(int value) { offsetX = value; }
+    void setOffsetY(int value) { offsetY = value; }
+    int getValueFromBoard(int x, int y) { return board[y][x]; }
     ~Tetriminos() {};
 };
 

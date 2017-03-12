@@ -1,14 +1,33 @@
 #include <iostream>
+#include <chrono>
+#include <ctime>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h>
 #include <thread>
 #include "game.h"
+#include <mutex>
 
 using namespace std;
+using namespace std::chrono;
+
+mutex showLock;
 
 Game::Game()
+{
+    srand (time(NULL));
+
+    emptyGameBoard();
+
+    currentTetriminos = getRandomTetriminos();
+    nextTetriminos = getRandomTetriminos();
+    //showTetris();
+    //char c;
+    //cin >> &c;
+}
+
+void Game::emptyGameBoard()
 {
     for(int i = 0; i < 20; i++){
         for(int j =0; j < 10; j++){
@@ -17,6 +36,39 @@ Game::Game()
     }
 }
 
+void Game::integrateATetriminos(Tetriminos* tetriminos)
+{
+
+    for(int i = 0; i < 5; i++)
+    {
+        for(int j = 0; j <  5; j++)
+        {
+            if(i+tetriminos->getOffsetY() < 20 && j+tetriminos->getOffsetX() < 10)
+            {
+                gameBoard[i+tetriminos->getOffsetY()][j+tetriminos->getOffsetX()] = tetriminos->getValueFromBoard(j, i);
+            }
+        }
+    }
+}
+
+bool Game::canTetriminosMove()
+{
+    for(int i = 0; i < 5; i++)
+    {
+        for(int j = 0; j <  5; j++)
+        {
+            if(i+currentTetriminos->getOffsetY() == 19)
+            {
+                if(currentTetriminos->getValueFromBoard(j, i) == 1)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
 
 void Game::addPoints(int points)
 {
@@ -28,26 +80,28 @@ void Game::addPoints(int points)
 void Game::startGame()
 {
     showTetris();
-    detectInput();
+
+    thread inputThread(detectInput, *this);
+    thread timerThread(moveTetriminos, *this);
+
+    inputThread.join();
+    timerThread.join();
 }
 
 void Game::detectInput()
 {
-    int posX = 7;
-    int posY = 0;
-
     HANDLE hIn; //The handler for the input
-    HANDLE hOut; //The handler for the output
+    //HANDLE hOut; //The handler for the output
 
 
     INPUT_RECORD InRec;
     DWORD NumRead; //The number of characters read
 
     hIn = GetStdHandle(STD_INPUT_HANDLE); //We get the standard input into our handler
-    hOut = GetStdHandle(STD_OUTPUT_HANDLE); //We get the standard output into our handler
+    //hOut = GetStdHandle(STD_OUTPUT_HANDLE); //We get the standard output into our handler
 
 
-    while (TRUE)
+    while (true)
     {
         ReadConsoleInput(hIn,
                          &InRec,
@@ -59,28 +113,19 @@ void Game::detectInput()
             case KEY_EVENT:
             if (InRec.Event.KeyEvent.uChar.AsciiChar == 'q' || InRec.Event.KeyEvent.wVirtualKeyCode == 37)
             {
-                gameBoard[posY][posX] = 0;
-                gameBoard[posY][--posX] = 1;
+                currentTetriminos->setOffsetX(currentTetriminos->getOffsetX() - 1);
                 showTetris();
             }
             else if(InRec.Event.KeyEvent.uChar.AsciiChar == 'd' || InRec.Event.KeyEvent.wVirtualKeyCode == 39)
             {
-                gameBoard[posY][posX] = 0;
-                gameBoard[posY][++posX] = 1;
+                currentTetriminos->setOffsetX(currentTetriminos->getOffsetX() + 1);
                 showTetris();
             }
-            else if(InRec.Event.KeyEvent.uChar.AsciiChar == 'z' || InRec.Event.KeyEvent.wVirtualKeyCode == 38)
+            /*else if(InRec.Event.KeyEvent.wVirtualKeyCode == 32) //Space bar
             {
-                gameBoard[posY][posX] = 0;
-                gameBoard[--posY][posX] = 1;
+                currentTetriminos->rotateIt();
                 showTetris();
-            }
-            else if(InRec.Event.KeyEvent.uChar.AsciiChar == 's' || InRec.Event.KeyEvent.wVirtualKeyCode == 40)
-            {
-                gameBoard[posY][posX] = 0;
-                gameBoard[++posY][posX] = 1;
-                showTetris();
-            }
+            }*/
             break;
         }
     }
@@ -89,12 +134,16 @@ void Game::detectInput()
 
 void Game::showTetris()
 {
+    //The lock allows to prevent the two threads of calling this method at the same time
+    showLock.lock();
     system("cls"); //Clear the console
+    emptyGameBoard();
+    integrateATetriminos(currentTetriminos);
     cout << getBorder() << endl;
     for(int i = 0; i < 20; i++)
     {
         string line = getLine(i);
-        if(i != 1 && i != 2 && i != 4 && i != 6)
+        if(i != 1 && i != 2 && i != 4 && (i < 5 || i > 9))
         {
             cout << "||" << line << "||" << endl;
         }
@@ -113,15 +162,27 @@ void Game::showTetris()
             cout << "||" << line << "||" << "   ";
             cout << "Next : " << endl;
         }
-        else if(i == 6)
+        else if(i >= 5 && i <= 9)
         {
-           cout << "||" << line << "||" << "     ";
-            cout << "[][][][]" << endl;
+            cout << "||" << line << "||" << "     ";
+            for(int j = 0; j < 5; j++)
+            {
+                if(nextTetriminos->getValueFromBoard(j, i-5) == 1)
+                {
+                    cout << "[]";
+                }
+                else
+                {
+                    cout << "  ";
+                }
+            }
+            cout << endl;
         }
 
     }
     cout << getBorder() << endl;
     cout << endl;
+    showLock.unlock();
 }
 
 string Game::getLine(int index)
@@ -155,3 +216,79 @@ string Game::getBorder()
     return border;
 }
 
+void Game::moveTetriminos()
+{
+
+    milliseconds startInMs = getCurrentMilliseconds();
+
+    bool hasReachedTheStep = false;
+    while(true){
+        if((getCurrentMilliseconds().count() - startInMs.count()) % stepInMilliseconds == 0 && !hasReachedTheStep)
+        {
+            if(canTetriminosMove())
+            {
+                currentTetriminos->setOffsetY(currentTetriminos->getOffsetY() + 1);
+            }
+            else
+            {
+
+                //To avoid overlapping of the value from the different threads
+                *currentTetriminos = *nextTetriminos;
+                *nextTetriminos = *getRandomTetriminos();
+            }
+            showTetris();
+            hasReachedTheStep = true;
+        }
+        else if((getCurrentMilliseconds().count() - startInMs.count()) % stepInMilliseconds != 0 && hasReachedTheStep)
+        {
+            hasReachedTheStep = false;
+        }
+    }
+}
+
+
+std::chrono::milliseconds Game::getCurrentMilliseconds()
+{
+    return duration_cast< milliseconds >(
+        system_clock::now().time_since_epoch()
+    );
+}
+
+int Game::getRandomNb(int mini, int maxi)
+{
+    return rand() % maxi + mini;
+}
+
+Tetriminos* Game::getATetriminos(int nb)
+{
+    switch(nb)
+    {
+        case 0:
+            return new TetriminosI();
+
+        case 1:
+            return new TetriminosJ();
+
+        case 2:
+            return new TetriminosL();
+
+        case 3:
+            return new TetriminosO();
+
+        case 4:
+            return new TetriminosT();
+
+        case 5:
+            return new TetriminosS();
+
+        case 6:
+            return new TetriminosZ();
+    }
+
+}
+
+Tetriminos* Game::getRandomTetriminos()
+{
+    int number = getRandomNb(0, 7);
+    return getATetriminos(number);
+}

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1489268363 source:c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\main.cpp
+1489337145 source:c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\main.cpp
 	<iostream>
 	<cmath>
 	<stdlib.h>
@@ -8,19 +8,24 @@
 	<thread>
 	"game.h"
 	"tetriminos.h"
+	<mutex>
 
-1489253991 c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\include\game.h
+1489337648 c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\include\game.h
+	"tetriminos.h"
 
-1489249930 source:c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\src\game.cpp
+1489338086 source:c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\src\game.cpp
 	<iostream>
+	<chrono>
+	<ctime>
 	<math.h>
 	<stdlib.h>
 	<stdio.h>
 	<windows.h>
 	<thread>
 	"game.h"
+	<mutex>
 
-1489267579 c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\include\tetriminos.h
+1489331585 c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\include\tetriminos.h
 
 1489269790 source:c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\src\tetriminos.cpp
 	<stdio.h>

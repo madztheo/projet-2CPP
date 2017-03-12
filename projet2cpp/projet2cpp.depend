@@ -1,0 +1,39 @@
+# depslib dependency file v1.0
+1489353371 source:c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\main.cpp
+	<iostream>
+	<cmath>
+	<stdlib.h>
+	<stdio.h>
+	<windows.h>
+	<thread>
+	"game.h"
+	"tetriminos.h"
+	<mutex>
+
+1489355465 c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\include\game.h
+	"tetriminos.h"
+
+1489355633 source:c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\src\game.cpp
+	<iostream>
+	<chrono>
+	<ctime>
+	<math.h>
+	<stdlib.h>
+	<stdio.h>
+	<windows.h>
+	<thread>
+	"game.h"
+	<mutex>
+	<string>
+
+1489331585 c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\include\tetriminos.h
+
+1489269790 source:c:\users\théo\documents\supinfo\2cpp\projet\projet-2cpp\projet2cpp\src\tetriminos.cpp
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<iostream>
+	<string.h>
+	<ctype.h>
+	"tetriminos.h"
+

@@ -26,6 +26,10 @@ public:
     void setOffsetX(int value) { offsetX = value; }
     void setOffsetY(int value) { offsetY = value; }
     int getValueFromBoard(int x, int y) { return board[y][x]; }
+    int getFurthestIndexOnTheRight();
+    int getFurthestIndexOnTheLeft();
+    int getFurthestIndexOnTheBottom();
+
     ~Tetriminos() {};
 };
 

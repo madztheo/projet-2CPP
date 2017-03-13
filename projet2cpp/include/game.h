@@ -15,6 +15,8 @@ private:
 
     void emptyGameBoard();
     bool canTetriminosMove();
+    bool canTetriminosGoLeft();
+    bool canTetriminosGoRight();
 
     std::string getLine(int index);
     std::string getBorder();

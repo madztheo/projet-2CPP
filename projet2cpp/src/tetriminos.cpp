@@ -34,6 +34,48 @@ void Tetriminos::rotateIt()
     emptyArray();
 }
 
+int Tetriminos::getFurthestIndexOnTheRight()
+{
+    int index = 0;
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 5; j++){
+            if(board[i][j] == 1 && j > index)
+            {
+                index = j;
+            }
+        }
+    }
+    return index;
+}
+
+int Tetriminos::getFurthestIndexOnTheLeft()
+{
+    int index = 4;
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 5; j++){
+            if(board[i][j] == 1 && j < index)
+            {
+                index = j;
+            }
+        }
+    }
+    return index;
+}
+
+int Tetriminos::getFurthestIndexOnTheBottom()
+{
+    int index = 0;
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 5; j++){
+            if(board[i][j] == 1 && i > index)
+            {
+                index = i;
+            }
+        }
+    }
+    return index;
+}
+
 
 //Tetriminos I
 TetriminosI::TetriminosI() : Tetriminos()

@@ -120,7 +120,7 @@ void Game::detectInput()
 
     hIn = GetStdHandle(STD_INPUT_HANDLE); //We get the standard input into our handler
     //hOut = GetStdHandle(STD_OUTPUT_HANDLE); //We get the standard output into our handler
-    milliseconds lastInputTime = getCurrentMilliseconds();
+    = getCurrentMilliseconds();
 
     while (!isGameOver)
     {
@@ -133,7 +133,7 @@ void Game::detectInput()
         {
             case KEY_EVENT:
             //We limit the time interval between two inputs to make it more user-friendly
-            if(getCurrentMilliseconds().count() - lastInputTime.count() < 200)
+            if(getCurrentMilliseconds().count() - lastInputTime.count() < 100)
             {
                 continue;
             }
@@ -157,13 +157,17 @@ void Game::detectInput()
             }
             else if((InRec.Event.KeyEvent.uChar.AsciiChar == 'h' || InRec.Event.KeyEvent.uChar.AsciiChar == 'H') && help == false){
 
+                showLock.lock();
                 lastInputTime = getCurrentMilliseconds();
                 help = true;
+                showLock.unlock();
                 showTetris();
             }
             else if((InRec.Event.KeyEvent.uChar.AsciiChar == 'h' || InRec.Event.KeyEvent.uChar.AsciiChar == 'H') && help == true){
+                showLock.lock();
                 lastInputTime = getCurrentMilliseconds();
                 help = false;
+                showLock.unlock();
                 showTetris();
 
             }

@@ -12,8 +12,7 @@ private:
     Tetriminos* currentTetriminos;
     Tetriminos* nextTetriminos;
     bool isGameOver = false;
-    bool help = false;
-
+    bool 
 
     void emptyGameBoard();
     bool canTetriminosMove();

@@ -13,12 +13,15 @@ private:
     Tetriminos* nextTetriminos;
     bool isGameOver = false;
     bool help = false;
+    bool isBoostOn = false;
 
 
     void emptyGameBoard();
     bool canTetriminosMove();
     bool canTetriminosGoLeft();
     bool canTetriminosGoRight();
+
+    int getProperTimeSpan();
 
     std::string getLine(int index);
     std::string getBorder();
@@ -30,13 +33,15 @@ private:
     void integrateATetriminos(Tetriminos* tetriminos, bool hasReachTheEnd);
     void checkForLineCompletion();
     void checkForGameStatus();
+    void addPoints(int points);
 
     std::chrono::milliseconds getCurrentMilliseconds();
     void moveTetriminos();
 public:
     Game();
     void startGame();
-    void addPoints(int points);
+
 };
+
 
 #endif // DEF_GAME_H

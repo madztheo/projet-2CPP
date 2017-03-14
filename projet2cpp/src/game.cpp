@@ -91,9 +91,11 @@ bool Game::canTetriminosMove()
 
 void Game::addPoints(int points)
 {
+    showLock.lock();
     score += points;
     level = floor(score / 100);
-    stepInMilliseconds = 1000 - level * 50;
+    stepInMilliseconds = 1000 / (level + 1);
+    showLock.unlock();
 }
 
 
@@ -124,19 +126,21 @@ void Game::detectInput()
 
     while (!isGameOver)
     {
+
         ReadConsoleInput(hIn,
                          &InRec,
                          1,
                          &NumRead);
 
-        switch (InRec.EventType)
-        {
-            case KEY_EVENT:
+
+        if(InRec.EventType == KEY_EVENT){
+
             //We limit the time interval between two inputs to make it more user-friendly
             if(getCurrentMilliseconds().count() - lastInputTime.count() < 200)
             {
                 continue;
             }
+
             if (InRec.Event.KeyEvent.uChar.AsciiChar == 'q' || InRec.Event.KeyEvent.wVirtualKeyCode == 37)
             {
                 if(canTetriminosGoLeft())
@@ -155,6 +159,10 @@ void Game::detectInput()
                     showTetris();
                 }
             }
+            else if(InRec.Event.KeyEvent.uChar.AsciiChar == 's' || InRec.Event.KeyEvent.wVirtualKeyCode == 40)
+            {
+                isBoostOn = true;
+            }
             else if((InRec.Event.KeyEvent.uChar.AsciiChar == 'h' || InRec.Event.KeyEvent.uChar.AsciiChar == 'H') && help == false){
 
                 lastInputTime = getCurrentMilliseconds();
@@ -165,7 +173,6 @@ void Game::detectInput()
                 lastInputTime = getCurrentMilliseconds();
                 help = false;
                 showTetris();
-
             }
             else if(InRec.Event.KeyEvent.wVirtualKeyCode == 32) //Space bar
             {
@@ -173,12 +180,8 @@ void Game::detectInput()
                 currentTetriminos->rotateIt();
                 showTetris();
             }
-            break;
         }
     }
-    cout << "Game over" << endl;
-    char c;
-    cin >> &c;
 }
 
 bool Game::canTetriminosGoLeft()
@@ -274,27 +277,27 @@ void Game::showTetris()
         }
         else if(i == 14 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "Tetriminos will drop from the top of the screen." << endl;
+            cout << "Tetriminos will fall from the top of the screen." << endl;
         }
         else if(i == 15 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "They can only be moved laterally or be rotated." << endl;
+            cout << "They can only be moved laterally or rotated." << endl;
         }
         else if(i == 16 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "The goal is to fit in the tetriminos in the board" << endl;
+            cout << "The goal is to fit the tetriminos in the board" << endl;
         }
         else if(i == 17 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "so as to complete rows. Lines will disappear once" << endl;
+            cout << "so as to create complete rows. Lines will disappear" << endl;
         }
         else if(i == 18 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "they're full. The game will end when a piece hit" << endl;
+            cout << "once they're full. The game will end when" << endl;
         }
         else if(i == 19 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "the roof." << endl;
+            cout << "a piece hit the roof." << endl;
         }
         else
         {
@@ -338,15 +341,22 @@ string Game::getBorder()
     return border;
 }
 
+int Game::getProperTimeSpan()
+{
+    return isBoostOn ? stepInMilliseconds / 4 : stepInMilliseconds;
+}
+
 void Game::moveTetriminos()
 {
-
     milliseconds startInMs = getCurrentMilliseconds();
 
     bool hasReachedTheStep = false;
     while(!isGameOver){
-        if((getCurrentMilliseconds().count() - startInMs.count()) % stepInMilliseconds == 0 && !hasReachedTheStep)
+
+        int timepsan = getProperTimeSpan();
+        if((getCurrentMilliseconds().count() - startInMs.count()) % timepsan == 0 && !hasReachedTheStep)
         {
+
             if(canTetriminosMove())
             {
                 currentTetriminos->setOffsetY(currentTetriminos->getOffsetY() + 1);
@@ -355,17 +365,23 @@ void Game::moveTetriminos()
             {
                 integrateATetriminos(currentTetriminos, true);
                 checkForLineCompletion();
+                checkForGameStatus();
                 currentTetriminos = nextTetriminos;
                 nextTetriminos = getRandomTetriminos();
             }
             showTetris();
             hasReachedTheStep = true;
+            isBoostOn = false;
         }
-        else if((getCurrentMilliseconds().count() - startInMs.count()) % stepInMilliseconds != 0 && hasReachedTheStep)
+        else if((getCurrentMilliseconds().count() - startInMs.count()) % timepsan != 0 && hasReachedTheStep)
         {
             hasReachedTheStep = false;
         }
     }
+    system("cls");
+    cout << "Game over" << endl;
+    char c;
+    cin >> &c;
 }
 
 
@@ -406,7 +422,7 @@ Tetriminos* Game::getATetriminos(int nb)
         case 6:
             return new TetriminosZ();
     }
-
+    return nullptr;
 }
 
 Tetriminos* Game::getRandomTetriminos()
@@ -469,7 +485,7 @@ void Game::checkForGameStatus()
 {
     for(int i = 0; i < 10; i++)
     {
-        if(gameBoard[0][i] == 2)
+        if(gameBoard[2][i] == 2)
         {
             isGameOver = true;
         }

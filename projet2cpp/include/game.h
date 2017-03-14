@@ -20,6 +20,7 @@ private:
     bool canTetriminosMove();
     bool canTetriminosGoLeft();
     bool canTetriminosGoRight();
+    bool canTetriminosRotate();
 
     int getProperTimeSpan();
 

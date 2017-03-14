@@ -139,15 +139,21 @@ void Game::detectInput()
             }
             if (InRec.Event.KeyEvent.uChar.AsciiChar == 'q' || InRec.Event.KeyEvent.wVirtualKeyCode == 37)
             {
-                lastInputTime = getCurrentMilliseconds();
-                currentTetriminos->setOffsetX(currentTetriminos->getOffsetX() - 1);
-                showTetris();
+                if(canTetriminosGoLeft())
+                {
+                    lastInputTime = getCurrentMilliseconds();
+                    currentTetriminos->setOffsetX(currentTetriminos->getOffsetX() - 1);
+                    showTetris();
+                }
             }
             else if(InRec.Event.KeyEvent.uChar.AsciiChar == 'd' || InRec.Event.KeyEvent.wVirtualKeyCode == 39)
             {
-                lastInputTime = getCurrentMilliseconds();
-                currentTetriminos->setOffsetX(currentTetriminos->getOffsetX() + 1);
-                showTetris();
+                if(canTetriminosGoRight())
+                {
+                    lastInputTime = getCurrentMilliseconds();
+                    currentTetriminos->setOffsetX(currentTetriminos->getOffsetX() + 1);
+                    showTetris();
+                }
             }
             else if(InRec.Event.KeyEvent.wVirtualKeyCode == 32) //Space bar
             {
@@ -163,9 +169,53 @@ void Game::detectInput()
     cin >> &c;
 }
 
+bool Game::canTetriminosGoLeft()
+{
+    for(int i = 0; i < 5; i++)
+    {
+        for(int j = 0; j <  5; j++)
+        {
+            //To avoid overlapping with other tetriminos
+            if(i+currentTetriminos->getOffsetY() <= 19 && j+currentTetriminos->getOffsetX() > 0
+                    && gameBoard[i+currentTetriminos->getOffsetY()][j+currentTetriminos->getOffsetX()-1] == 2
+                    && currentTetriminos->getValueFromBoard(j, i) == 1)
+            {
+                return false;
+            }
+            //To prevent the tetriminos from getting out the game board
+            else if(currentTetriminos->getOffsetX()+currentTetriminos->getFurthestIndexOnTheLeft() <= 0)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Game::canTetriminosGoRight()
+{
+    for(int i = 0; i < 5; i++)
+    {
+        for(int j = 0; j <  5; j++)
+        {
+            if(i+currentTetriminos->getOffsetY() <= 19 && j+currentTetriminos->getOffsetX() < 9
+                    && gameBoard[i+currentTetriminos->getOffsetY()][j+currentTetriminos->getOffsetX()+1] == 2
+                    && currentTetriminos->getValueFromBoard(j, i) == 1)
+            {
+                return false;
+            }
+            else if(currentTetriminos->getOffsetX()+currentTetriminos->getFurthestIndexOnTheRight() >= 9)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void Game::showTetris()
 {
-    //The lock allows to prevent the two threads of calling this method at the same time
+    //The lock prevents the two threads of calling this method at the same time
     showLock.lock();
     system("cls"); //Clear the console
     emptyGameBoard();

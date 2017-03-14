@@ -22,7 +22,9 @@ Game::Game()
     emptyGameBoard();
 
     currentTetriminos = getRandomTetriminos();
+    currentTetriminos->setOffsetY(-2);
     nextTetriminos = getRandomTetriminos();
+    nextTetriminos->setOffsetY(-2);
 }
 
 void Game::emptyGameBoard()
@@ -46,7 +48,8 @@ void Game::integrateATetriminos(Tetriminos* tetriminos, bool hasReachTheEnd = fa
         {
             if(i+tetriminos->getOffsetY() < 20 && j+tetriminos->getOffsetX() < 10)
             {
-                if(gameBoard[i+tetriminos->getOffsetY()][j+tetriminos->getOffsetX()] == 2){
+                if(gameBoard[i+tetriminos->getOffsetY()][j+tetriminos->getOffsetX()] == 2
+                   || tetriminos->getValueFromBoard(j, i) == 0){
                     continue;
                 }
 
@@ -89,13 +92,68 @@ bool Game::canTetriminosMove()
     return true;
 }
 
+bool Game::canTetriminosRotate()
+{
+    //The tip of the tetriminos on the left will be the tip on its top after the rotation
+    if(currentTetriminos->getCurrentRotation() == 0)
+    {
+        //2 is the index of the rotation's pivot
+        int gap = 2 - currentTetriminos->getFurthestIndexToTheLeft();
+        if(currentTetriminos->getOffsetY() + 2 - gap >= 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    //The tip of the tetriminos on the top will be the tip on its right after the rotation
+    else if(currentTetriminos->getCurrentRotation() == 90)
+    {
+        int gap = 2 - currentTetriminos->getFurthestIndexToTheTop();
+        if(currentTetriminos->getOffsetX() + 2 + gap <= 9)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    //The tip of the tetriminos on the right will be the tip on its bottom after the rotation
+    else if(currentTetriminos->getCurrentRotation() == 180)
+    {
+        int gap = currentTetriminos->getFurthestIndexToTheRight() - 2;
+        if(currentTetriminos->getOffsetY() + 2 + gap <= 19)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    //The tip of the tetriminos on the bottom will be the tip on its left after the rotation
+    else if(currentTetriminos->getCurrentRotation() == 270)
+    {
+        int gap = currentTetriminos->getFurthestIndexToTheBottom() - 2;
+        if(currentTetriminos->getOffsetX() + 2 - gap >= 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
 void Game::addPoints(int points)
 {
-    showLock.lock();
     score += points;
     level = floor(score / 100);
     stepInMilliseconds = 1000 / (level + 1);
-    showLock.unlock();
 }
 
 
@@ -161,6 +219,7 @@ void Game::detectInput()
             }
             else if(InRec.Event.KeyEvent.uChar.AsciiChar == 's' || InRec.Event.KeyEvent.wVirtualKeyCode == 40)
             {
+                lastInputTime = getCurrentMilliseconds();
                 isBoostOn = true;
             }
             else if((InRec.Event.KeyEvent.uChar.AsciiChar == 'h' || InRec.Event.KeyEvent.uChar.AsciiChar == 'H') && help == false){
@@ -177,8 +236,12 @@ void Game::detectInput()
             else if(InRec.Event.KeyEvent.wVirtualKeyCode == 32) //Space bar
             {
                 lastInputTime = getCurrentMilliseconds();
-                currentTetriminos->rotateIt();
-                showTetris();
+                if(canTetriminosRotate())
+                {
+                    currentTetriminos->rotateIt();
+                    showTetris();
+                }
+
             }
         }
     }
@@ -198,7 +261,7 @@ bool Game::canTetriminosGoLeft()
                 return false;
             }
             //To prevent the tetriminos from getting out the game board
-            else if(currentTetriminos->getOffsetX()+currentTetriminos->getFurthestIndexOnTheLeft() <= 0)
+            else if(currentTetriminos->getOffsetX()+currentTetriminos->getFurthestIndexToTheLeft() <= 0)
             {
                 return false;
             }
@@ -219,7 +282,7 @@ bool Game::canTetriminosGoRight()
             {
                 return false;
             }
-            else if(currentTetriminos->getOffsetX()+currentTetriminos->getFurthestIndexOnTheRight() >= 9)
+            else if(currentTetriminos->getOffsetX()+currentTetriminos->getFurthestIndexToTheRight() >= 9)
             {
                 return false;
             }
@@ -227,6 +290,7 @@ bool Game::canTetriminosGoRight()
     }
     return true;
 }
+
 
 void Game::showTetris()
 {
@@ -281,23 +345,23 @@ void Game::showTetris()
         }
         else if(i == 15 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "They can only be moved laterally or rotated." << endl;
+            cout << "They can only be rotated or moved laterally." << endl;
         }
         else if(i == 16 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "The goal is to fit the tetriminos in the board" << endl;
+            cout << "The game's goal is to fit the tetriminos in the" << endl;
         }
         else if(i == 17 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "so as to create complete rows. Lines will disappear" << endl;
+            cout << "board as tight as possible so as to fill the rows." << endl;
         }
         else if(i == 18 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "once they're full. The game will end when" << endl;
+            cout << "Lines will then disappear once they are full." << endl;
         }
         else if(i == 19 && help == true){
             cout << "||" << line << "||" << "   ";
-            cout << "a piece hit the roof." << endl;
+            cout << "The game ends when a piece hit the top of the board." << endl;
         }
         else
         {
@@ -367,7 +431,9 @@ void Game::moveTetriminos()
                 checkForLineCompletion();
                 checkForGameStatus();
                 currentTetriminos = nextTetriminos;
+                currentTetriminos->setOffsetY(-2);
                 nextTetriminos = getRandomTetriminos();
+                nextTetriminos->setOffsetY(-2);
             }
             showTetris();
             hasReachedTheStep = true;

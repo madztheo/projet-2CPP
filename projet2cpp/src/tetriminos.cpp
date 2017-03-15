@@ -8,6 +8,7 @@
 
 using namespace std;
 
+//Empty the array containing the tetriminos, 1 for something and 0 for nothing
 void Tetriminos::emptyArray()
 {
     for(int i = 0; i < 5; i++){
@@ -17,6 +18,7 @@ void Tetriminos::emptyArray()
     }
 }
 
+//Show the tetriminos on the screen, was used only for test purposes
 void Tetriminos::show()
 {
     for(int i = 0; i < 5; i++){
@@ -27,13 +29,16 @@ void Tetriminos::show()
     }
 }
 
-
+//Rotate the tetriminos
 void Tetriminos::rotateIt()
 {
+    //We add 90 degrees to the current rotation of the tetriminos make sure stay within the 360 with a modulus
     rotation = (rotation + 90) % 360;
+    //We then empty the board to make the update afterwards in the children implementations of this function
     emptyArray();
 }
 
+//We get the index of the 1 which the furthest on the right
 int Tetriminos::getFurthestIndexToTheRight()
 {
     int index = 0;
@@ -48,6 +53,7 @@ int Tetriminos::getFurthestIndexToTheRight()
     return index;
 }
 
+//We get the index of the 1 which the furthest on the left
 int Tetriminos::getFurthestIndexToTheLeft()
 {
     int index = 4;
@@ -62,6 +68,7 @@ int Tetriminos::getFurthestIndexToTheLeft()
     return index;
 }
 
+//We get the index of the 1 which the furthest on the bottom
 int Tetriminos::getFurthestIndexToTheBottom()
 {
     int index = 0;
@@ -76,6 +83,7 @@ int Tetriminos::getFurthestIndexToTheBottom()
     return index;
 }
 
+//We get the index of the 1 which the furthest on the top
 int Tetriminos::getFurthestIndexToTheTop()
 {
     int index = 4;
@@ -102,7 +110,10 @@ TetriminosI::TetriminosI() : Tetriminos()
 
 void TetriminosI::rotateIt()
 {
+    //We call the parent implementation of the function
     Tetriminos::rotateIt();
+
+    //We then make the rotation specific to the child
     if(rotation == 0)
     {
         board[2][0] = 1;
